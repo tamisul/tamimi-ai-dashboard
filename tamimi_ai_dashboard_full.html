@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAMIMI AI Dashboard</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg2: #131a2f;
+      --panel: rgba(16, 22, 43, 0.82);
+      --panel-2: rgba(255, 255, 255, 0.06);
+      --text: #eef2ff;
+      --muted: #a8b0cf;
+      --line: rgba(255,255,255,0.08);
+      --accent: #8b5cf6;
+      --accent2: #22c55e;
+      --shadow: 0 18px 45px rgba(0,0,0,.32);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(139, 92, 246, .18), transparent 20%),
+        radial-gradient(circle at left bottom, rgba(34, 197, 94, .14), transparent 22%),
+        linear-gradient(135deg, var(--bg), var(--bg2));
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "TAMIMI";
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: min(18vw, 180px);
+      font-weight: 900;
+      letter-spacing: 14px;
+      color: rgba(255,255,255,0.03);
+      pointer-events: none;
+      user-select: none;
+      z-index: 0;
+      transform: rotate(-18deg);
+      white-space: nowrap;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px 18px 40px;
+    }
+
+    .hero {
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: 28px;
+      padding: 22px;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-top {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 26px;
+      background: linear-gradient(135deg, var(--accent), #3b82f6);
+      box-shadow: 0 10px 30px rgba(139,92,246,.35);
+    }
+
+    .brand h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 4vw, 36px);
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .toolbar {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.5fr auto auto;
+      gap: 12px;
+    }
+
+    .search-wrap, .action-btn {
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 14px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 15px 0;
+      font-size: 15px;
+    }
+
+    .search-wrap input::placeholder {
+      color: #95a0c9;
+    }
+
+    .action-btn {
+      color: var(--text);
+      padding: 14px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: .2s ease;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.09);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .sidebar, .content {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .sidebar {
+      padding: 16px;
+      position: sticky;
+      top: 18px;
+      align-self: start;
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tab-btn {
+      width: 100%;
+      text-align: right;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid transparent;
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 14px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .22s ease;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255,255,255,.08);
+      border-color: var(--line);
+      transform: translateX(-2px);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, rgba(139,92,246,.25), rgba(59,130,246,.15));
+      border-color: rgba(139,92,246,.35);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+
+    .tab-emoji {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.08);
+      flex: 0 0 auto;
+      font-size: 16px;
+    }
+
+    .content {
+      padding: 18px;
+      min-height: 700px;
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+      font-size: clamp(20px, 3vw, 28px);
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 13px;
+      background: rgba(255,255,255,.05);
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    .tool-card {
+      display: block;
+      text-decoration: none;
+      color: var(--text);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px;
+      transition: .24s ease;
+      min-height: 132px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -20% -35% auto;
+      width: 110px;
+      height: 110px;
+      background: radial-gradient(circle, rgba(139,92,246,.25), transparent 65%);
+      pointer-events: none;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(139,92,246,.35);
+      box-shadow: 0 16px 35px rgba(0,0,0,.22);
+    }
+
+    .tool-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .tool-logo, .tool-logo-fallback {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.10);
+      border: 1px solid var(--line);
+    }
+
+    .tool-logo {
+      object-fit: cover;
+      padding: 6px;
+    }
+
+    .tool-logo-fallback {
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: white;
+    }
+
+    .tool-name {
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .tool-domain {
+      color: var(--muted);
+      font-size: 13px;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .empty-state {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 22px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        max-height: none;
+      }
+
+      .tabs {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .tools-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+
+      .tool-card {
+        min-height: 120px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="hero">
+      <div class="hero-top">
+        <div class="brand">
+          <div class="brand-badge">🧠</div>
+          <div>
+            <h1>TAMIMI AI Dashboard</h1>
+            <p>لوحة يومية منظمة للوصول السريع إلى منصات الذكاء الاصطناعي</p>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="pill">14 categories</div>
+          <div class="pill">92 platforms</div>
+          <div class="pill">Ready for daily use</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span>🔎</span>
+          <input id="searchInput" type="text" placeholder="ابحث عن أي منصة أو نطاق..." />
+        </div>
+        <button class="action-btn" id="openVisible">فتح النتائج الظاهرة</button>
+        <button class="action-btn" id="resetBtn">إعادة الضبط</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-title">التبويبات الرئيسية</div>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="tab-0">
+            <span class="tab-emoji">💬</span>
+            <span>AI Chatbots</span>
+        </button><button class="tab-btn " data-tab="tab-1">
+            <span class="tab-emoji">🖥️</span>
+            <span>AI Presentation</span>
+        </button><button class="tab-btn " data-tab="tab-2">
+            <span class="tab-emoji">💻</span>
+            <span>AI Coding Assistance</span>
+        </button><button class="tab-btn " data-tab="tab-3">
+            <span class="tab-emoji">✉️</span>
+            <span>AI Email Assistance</span>
+        </button><button class="tab-btn " data-tab="tab-4">
+            <span class="tab-emoji">🎨</span>
+            <span>AI Image Generation</span>
+        </button><button class="tab-btn " data-tab="tab-5">
+            <span class="tab-emoji">📊</span>
+            <span>AI Spreadsheet</span>
+        </button><button class="tab-btn " data-tab="tab-6">
+            <span class="tab-emoji">📝</span>
+            <span>AI Meeting Notes</span>
+        </button><button class="tab-btn " data-tab="tab-7">
+            <span class="tab-emoji">⚙️</span>
+            <span>AI Workflow Automation</span>
+        </button><button class="tab-btn " data-tab="tab-8">
+            <span class="tab-emoji">✍️</span>
+            <span>AI Writing Generation</span>
+        </button><button class="tab-btn " data-tab="tab-9">
+            <span class="tab-emoji">📅</span>
+            <span>AI Scheduling</span>
+        </button><button class="tab-btn " data-tab="tab-10">
+            <span class="tab-emoji">🧠</span>
+            <span>AI Knowledge Management</span>
+        </button><button class="tab-btn " data-tab="tab-11">
+            <span class="tab-emoji">🎬</span>
+            <span>AI Video Generation</span>
+        </button><button class="tab-btn " data-tab="tab-12">
+            <span class="tab-emoji">🧩</span>
+            <span>AI Graphic Design</span>
+        </button><button class="tab-btn " data-tab="tab-13">
+            <span class="tab-emoji">📈</span>
+            <span>AI Data Visualization</span>
+        </button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section id="tab-0" class="tab-panel active">
+            <div class="panel-header">
+                <h2>💬 AI Chatbots</h2>
+                <span class="count">8 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://chat.openai.com" target="_blank" rel="noopener noreferrer" data-name="chatgpt chat.openai.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=chat.openai.com&sz=64" alt="ChatGPT logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">ChatGPT</div>
+                <div class="tool-domain">chat.openai.com</div>
+            </a><a class="tool-card" href="https://claude.ai" target="_blank" rel="noopener noreferrer" data-name="claude claude.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=claude.ai&sz=64" alt="Claude logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Claude</div>
+                <div class="tool-domain">claude.ai</div>
+            </a><a class="tool-card" href="https://deepseek.com" target="_blank" rel="noopener noreferrer" data-name="deepseek deepseek.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=deepseek.com&sz=64" alt="DeepSeek logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">D</div>
+                </div>
+                <div class="tool-name">DeepSeek</div>
+                <div class="tool-domain">deepseek.com</div>
+            </a><a class="tool-card" href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" data-name="gemini gemini.google.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=gemini.google.com&sz=64" alt="Gemini logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">G</div>
+                </div>
+                <div class="tool-name">Gemini</div>
+                <div class="tool-domain">gemini.google.com</div>
+            </a><a class="tool-card" href="https://grok.x.ai" target="_blank" rel="noopener noreferrer" data-name="grok grok.x.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=grok.x.ai&sz=64" alt="Grok logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">G</div>
+                </div>
+                <div class="tool-name">Grok</div>
+                <div class="tool-domain">grok.x.ai</div>
+            </a><a class="tool-card" href="https://ai.meta.com" target="_blank" rel="noopener noreferrer" data-name="meta ai ai.meta.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=ai.meta.com&sz=64" alt="Meta AI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">Meta AI</div>
+                <div class="tool-domain">ai.meta.com</div>
+            </a><a class="tool-card" href="https://copilot.microsoft.com" target="_blank" rel="noopener noreferrer" data-name="ms copilot copilot.microsoft.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=copilot.microsoft.com&sz=64" alt="MS Copilot logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">MS Copilot</div>
+                <div class="tool-domain">copilot.microsoft.com</div>
+            </a><a class="tool-card" href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer" data-name="perplexity perplexity.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=perplexity.ai&sz=64" alt="Perplexity logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">P</div>
+                </div>
+                <div class="tool-name">Perplexity</div>
+                <div class="tool-domain">perplexity.ai</div>
+            </a>
+            </div>
+        </section><section id="tab-1" class="tab-panel ">
+            <div class="panel-header">
+                <h2>🖥️ AI Presentation</h2>
+                <span class="count">8 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://www.beautiful.ai" target="_blank" rel="noopener noreferrer" data-name="beautiful.ai beautiful.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=beautiful.ai&sz=64" alt="Beautiful.AI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">B</div>
+                </div>
+                <div class="tool-name">Beautiful.AI</div>
+                <div class="tool-domain">beautiful.ai</div>
+            </a><a class="tool-card" href="https://gamma.app" target="_blank" rel="noopener noreferrer" data-name="gamma gamma.app">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=gamma.app&sz=64" alt="Gamma logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">G</div>
+                </div>
+                <div class="tool-name">Gamma</div>
+                <div class="tool-domain">gamma.app</div>
+            </a><a class="tool-card" href="https://pitch.com" target="_blank" rel="noopener noreferrer" data-name="pitch pitch.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=pitch.com&sz=64" alt="Pitch logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">P</div>
+                </div>
+                <div class="tool-name">Pitch</div>
+                <div class="tool-domain">pitch.com</div>
+            </a><a class="tool-card" href="https://plusdocs.com" target="_blank" rel="noopener noreferrer" data-name="plus plusdocs.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=plusdocs.com&sz=64" alt="Plus logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">P</div>
+                </div>
+                <div class="tool-name">Plus</div>
+                <div class="tool-domain">plusdocs.com</div>
+            </a><a class="tool-card" href="https://popai.pro" target="_blank" rel="noopener noreferrer" data-name="popai popai.pro">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=popai.pro&sz=64" alt="PopAI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">P</div>
+                </div>
+                <div class="tool-name">PopAI</div>
+                <div class="tool-domain">popai.pro</div>
+            </a><a class="tool-card" href="https://presentation.ai" target="_blank" rel="noopener noreferrer" data-name="presentation.ai presentation.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=presentation.ai&sz=64" alt="Presentation.AI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">P</div>
+                </div>
+                <div class="tool-name">Presentation.AI</div>
+                <div class="tool-domain">presentation.ai</div>
+            </a><a class="tool-card" href="https://slidesgo.com" target="_blank" rel="noopener noreferrer" data-name="slidesgo slidesgo.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=slidesgo.com&sz=64" alt="Slidesgo logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">S</div>
+                </div>
+                <div class="tool-name">Slidesgo</div>
+                <div class="tool-domain">slidesgo.com</div>
+            </a><a class="tool-card" href="https://tome.app" target="_blank" rel="noopener noreferrer" data-name="tome tome.app">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=tome.app&sz=64" alt="Tome logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">T</div>
+                </div>
+                <div class="tool-name">Tome</div>
+                <div class="tool-domain">tome.app</div>
+            </a>
+            </div>
+        </section><section id="tab-2" class="tab-panel ">
+            <div class="panel-header">
+                <h2>💻 AI Coding Assistance</h2>
+                <span class="count">7 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://askcodi.com" target="_blank" rel="noopener noreferrer" data-name="askcodi askcodi.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=askcodi.com&sz=64" alt="AskCodi logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">A</div>
+                </div>
+                <div class="tool-name">AskCodi</div>
+                <div class="tool-domain">askcodi.com</div>
+            </a><a class="tool-card" href="https://www.codiga.io" target="_blank" rel="noopener noreferrer" data-name="codiga codiga.io">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=codiga.io&sz=64" alt="Codiga logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Codiga</div>
+                <div class="tool-domain">codiga.io</div>
+            </a><a class="tool-card" href="https://cursor.sh" target="_blank" rel="noopener noreferrer" data-name="cursor cursor.sh">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=cursor.sh&sz=64" alt="Cursor logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Cursor</div>
+                <div class="tool-domain">cursor.sh</div>
+            </a><a class="tool-card" href="https://github.com/features/copilot" target="_blank" rel="noopener noreferrer" data-name="github copilot github.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=github.com&sz=64" alt="GitHub Copilot logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">G</div>
+                </div>
+                <div class="tool-name">GitHub Copilot</div>
+                <div class="tool-domain">github.com</div>
+            </a><a class="tool-card" href="https://qodo.ai" target="_blank" rel="noopener noreferrer" data-name="qodo qodo.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=qodo.ai&sz=64" alt="Qodo logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">Q</div>
+                </div>
+                <div class="tool-name">Qodo</div>
+                <div class="tool-domain">qodo.ai</div>
+            </a><a class="tool-card" href="https://replit.com" target="_blank" rel="noopener noreferrer" data-name="replit replit.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=replit.com&sz=64" alt="Replit logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">R</div>
+                </div>
+                <div class="tool-name">Replit</div>
+                <div class="tool-domain">replit.com</div>
+            </a><a class="tool-card" href="https://www.tabnine.com" target="_blank" rel="noopener noreferrer" data-name="tabnine tabnine.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=tabnine.com&sz=64" alt="Tabnine logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">T</div>
+                </div>
+                <div class="tool-name">Tabnine</div>
+                <div class="tool-domain">tabnine.com</div>
+            </a>
+            </div>
+        </section><section id="tab-3" class="tab-panel ">
+            <div class="panel-header">
+                <h2>✉️ AI Email Assistance</h2>
+                <span class="count">5 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://www.clippit.ai" target="_blank" rel="noopener noreferrer" data-name="clippit clippit.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=clippit.ai&sz=64" alt="Clippit logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Clippit</div>
+                <div class="tool-domain">clippit.ai</div>
+            </a><a class="tool-card" href="https://www.friday.app" target="_blank" rel="noopener noreferrer" data-name="friday friday.app">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=friday.app&sz=64" alt="Friday logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">Friday</div>
+                <div class="tool-domain">friday.app</div>
+            </a><a class="tool-card" href="https://mailmaestro.com" target="_blank" rel="noopener noreferrer" data-name="mailmaestro mailmaestro.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=mailmaestro.com&sz=64" alt="MailMaestro logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">MailMaestro</div>
+                <div class="tool-domain">mailmaestro.com</div>
+            </a><a class="tool-card" href="https://www.shortwave.com" target="_blank" rel="noopener noreferrer" data-name="shortwave shortwave.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=shortwave.com&sz=64" alt="Shortwave logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">S</div>
+                </div>
+                <div class="tool-name">Shortwave</div>
+                <div class="tool-domain">shortwave.com</div>
+            </a><a class="tool-card" href="https://superhuman.com" target="_blank" rel="noopener noreferrer" data-name="superhuman superhuman.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=superhuman.com&sz=64" alt="Superhuman logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">S</div>
+                </div>
+                <div class="tool-name">Superhuman</div>
+                <div class="tool-domain">superhuman.com</div>
+            </a>
+            </div>
+        </section><section id="tab-4" class="tab-panel ">
+            <div class="panel-header">
+                <h2>🎨 AI Image Generation</h2>
+                <span class="count">7 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://firefly.adobe.com" target="_blank" rel="noopener noreferrer" data-name="adobe firefly firefly.adobe.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=firefly.adobe.com&sz=64" alt="Adobe Firefly logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">A</div>
+                </div>
+                <div class="tool-name">Adobe Firefly</div>
+                <div class="tool-domain">firefly.adobe.com</div>
+            </a><a class="tool-card" href="https://openai.com/dall-e" target="_blank" rel="noopener noreferrer" data-name="dall·e openai.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=openai.com&sz=64" alt="DALL·E logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">D</div>
+                </div>
+                <div class="tool-name">DALL·E</div>
+                <div class="tool-domain">openai.com</div>
+            </a><a class="tool-card" href="https://flux-ai.io" target="_blank" rel="noopener noreferrer" data-name="flux.1 flux-ai.io">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=flux-ai.io&sz=64" alt="FLUX.1 logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">FLUX.1</div>
+                <div class="tool-domain">flux-ai.io</div>
+            </a><a class="tool-card" href="https://ideogram.ai" target="_blank" rel="noopener noreferrer" data-name="ideogram ideogram.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=ideogram.ai&sz=64" alt="Ideogram logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">I</div>
+                </div>
+                <div class="tool-name">Ideogram</div>
+                <div class="tool-domain">ideogram.ai</div>
+            </a><a class="tool-card" href="https://www.midjourney.com" target="_blank" rel="noopener noreferrer" data-name="midjourney midjourney.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=midjourney.com&sz=64" alt="Midjourney logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">Midjourney</div>
+                <div class="tool-domain">midjourney.com</div>
+            </a><a class="tool-card" href="https://www.recraft.ai" target="_blank" rel="noopener noreferrer" data-name="recraft recraft.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=recraft.ai&sz=64" alt="Recraft logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">R</div>
+                </div>
+                <div class="tool-name">Recraft</div>
+                <div class="tool-domain">recraft.ai</div>
+            </a><a class="tool-card" href="https://stability.ai" target="_blank" rel="noopener noreferrer" data-name="stability ai stability.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=stability.ai&sz=64" alt="Stability AI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">S</div>
+                </div>
+                <div class="tool-name">Stability AI</div>
+                <div class="tool-domain">stability.ai</div>
+            </a>
+            </div>
+        </section><section id="tab-5" class="tab-panel ">
+            <div class="panel-header">
+                <h2>📊 AI Spreadsheet</h2>
+                <span class="count">5 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://www.thebricks.com" target="_blank" rel="noopener noreferrer" data-name="bricks thebricks.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=thebricks.com&sz=64" alt="Bricks logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">B</div>
+                </div>
+                <div class="tool-name">Bricks</div>
+                <div class="tool-domain">thebricks.com</div>
+            </a><a class="tool-card" href="https://formulabot.com" target="_blank" rel="noopener noreferrer" data-name="formula bot formulabot.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=formulabot.com&sz=64" alt="Formula Bot logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">Formula Bot</div>
+                <div class="tool-domain">formulabot.com</div>
+            </a><a class="tool-card" href="https://www.gigasheet.com" target="_blank" rel="noopener noreferrer" data-name="gigasheet gigasheet.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=gigasheet.com&sz=64" alt="Gigasheet logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">G</div>
+                </div>
+                <div class="tool-name">Gigasheet</div>
+                <div class="tool-domain">gigasheet.com</div>
+            </a><a class="tool-card" href="https://rows.com" target="_blank" rel="noopener noreferrer" data-name="rows rows.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=rows.com&sz=64" alt="Rows logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">R</div>
+                </div>
+                <div class="tool-name">Rows</div>
+                <div class="tool-domain">rows.com</div>
+            </a><a class="tool-card" href="https://sheetai.app" target="_blank" rel="noopener noreferrer" data-name="sheetai sheetai.app">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=sheetai.app&sz=64" alt="SheetAI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">S</div>
+                </div>
+                <div class="tool-name">SheetAI</div>
+                <div class="tool-domain">sheetai.app</div>
+            </a>
+            </div>
+        </section><section id="tab-6" class="tab-panel ">
+            <div class="panel-header">
+                <h2>📝 AI Meeting Notes</h2>
+                <span class="count">7 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://www.avoma.com" target="_blank" rel="noopener noreferrer" data-name="avoma avoma.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=avoma.com&sz=64" alt="Avoma logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">A</div>
+                </div>
+                <div class="tool-name">Avoma</div>
+                <div class="tool-domain">avoma.com</div>
+            </a><a class="tool-card" href="https://equaltime.io" target="_blank" rel="noopener noreferrer" data-name="equal time equaltime.io">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=equaltime.io&sz=64" alt="Equal Time logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">E</div>
+                </div>
+                <div class="tool-name">Equal Time</div>
+                <div class="tool-domain">equaltime.io</div>
+            </a><a class="tool-card" href="https://fathom.video" target="_blank" rel="noopener noreferrer" data-name="fathom fathom.video">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=fathom.video&sz=64" alt="Fathom logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">Fathom</div>
+                <div class="tool-domain">fathom.video</div>
+            </a><a class="tool-card" href="https://fellow.app" target="_blank" rel="noopener noreferrer" data-name="fellow fellow.app">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=fellow.app&sz=64" alt="Fellow logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">Fellow</div>
+                <div class="tool-domain">fellow.app</div>
+            </a><a class="tool-card" href="https://fireflies.ai" target="_blank" rel="noopener noreferrer" data-name="fireflies fireflies.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=fireflies.ai&sz=64" alt="Fireflies logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">Fireflies</div>
+                <div class="tool-domain">fireflies.ai</div>
+            </a><a class="tool-card" href="https://krisp.ai" target="_blank" rel="noopener noreferrer" data-name="krisp krisp.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=krisp.ai&sz=64" alt="Krisp logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">K</div>
+                </div>
+                <div class="tool-name">Krisp</div>
+                <div class="tool-domain">krisp.ai</div>
+            </a><a class="tool-card" href="https://otter.ai" target="_blank" rel="noopener noreferrer" data-name="otter otter.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=otter.ai&sz=64" alt="Otter logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">O</div>
+                </div>
+                <div class="tool-name">Otter</div>
+                <div class="tool-domain">otter.ai</div>
+            </a>
+            </div>
+        </section><section id="tab-7" class="tab-panel ">
+            <div class="panel-header">
+                <h2>⚙️ AI Workflow Automation</h2>
+                <span class="count">6 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://integrately.com" target="_blank" rel="noopener noreferrer" data-name="integrately integrately.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=integrately.com&sz=64" alt="Integrately logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">I</div>
+                </div>
+                <div class="tool-name">Integrately</div>
+                <div class="tool-domain">integrately.com</div>
+            </a><a class="tool-card" href="https://www.make.com" target="_blank" rel="noopener noreferrer" data-name="make make.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=make.com&sz=64" alt="Make logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">Make</div>
+                <div class="tool-domain">make.com</div>
+            </a><a class="tool-card" href="https://monday.com" target="_blank" rel="noopener noreferrer" data-name="monday monday.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=monday.com&sz=64" alt="Monday logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">Monday</div>
+                <div class="tool-domain">monday.com</div>
+            </a><a class="tool-card" href="https://n8n.io" target="_blank" rel="noopener noreferrer" data-name="n8n n8n.io">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=n8n.io&sz=64" alt="n8n logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">N</div>
+                </div>
+                <div class="tool-name">n8n</div>
+                <div class="tool-domain">n8n.io</div>
+            </a><a class="tool-card" href="https://www.wrike.com" target="_blank" rel="noopener noreferrer" data-name="wrike wrike.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=wrike.com&sz=64" alt="Wrike logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">W</div>
+                </div>
+                <div class="tool-name">Wrike</div>
+                <div class="tool-domain">wrike.com</div>
+            </a><a class="tool-card" href="https://zapier.com" target="_blank" rel="noopener noreferrer" data-name="zapier zapier.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=zapier.com&sz=64" alt="Zapier logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">Z</div>
+                </div>
+                <div class="tool-name">Zapier</div>
+                <div class="tool-domain">zapier.com</div>
+            </a>
+            </div>
+        </section><section id="tab-8" class="tab-panel ">
+            <div class="panel-header">
+                <h2>✍️ AI Writing Generation</h2>
+                <span class="count">9 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://www.copy.ai" target="_blank" rel="noopener noreferrer" data-name="copy.ai copy.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=copy.ai&sz=64" alt="Copy.ai logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Copy.ai</div>
+                <div class="tool-domain">copy.ai</div>
+            </a><a class="tool-card" href="https://www.grammarly.com" target="_blank" rel="noopener noreferrer" data-name="grammarly grammarly.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=grammarly.com&sz=64" alt="Grammarly logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">G</div>
+                </div>
+                <div class="tool-name">Grammarly</div>
+                <div class="tool-domain">grammarly.com</div>
+            </a><a class="tool-card" href="https://www.jasper.ai" target="_blank" rel="noopener noreferrer" data-name="jasper jasper.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=jasper.ai&sz=64" alt="Jasper logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">J</div>
+                </div>
+                <div class="tool-name">Jasper</div>
+                <div class="tool-domain">jasper.ai</div>
+            </a><a class="tool-card" href="https://www.jotbot.ai" target="_blank" rel="noopener noreferrer" data-name="jotbot jotbot.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=jotbot.ai&sz=64" alt="JotBot logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">J</div>
+                </div>
+                <div class="tool-name">JotBot</div>
+                <div class="tool-domain">jotbot.ai</div>
+            </a><a class="tool-card" href="https://quarkle.ai" target="_blank" rel="noopener noreferrer" data-name="quarkle quarkle.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=quarkle.ai&sz=64" alt="Quarkle logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">Q</div>
+                </div>
+                <div class="tool-name">Quarkle</div>
+                <div class="tool-domain">quarkle.ai</div>
+            </a><a class="tool-card" href="https://quillbot.com" target="_blank" rel="noopener noreferrer" data-name="quillbot quillbot.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=quillbot.com&sz=64" alt="QuillBot logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">Q</div>
+                </div>
+                <div class="tool-name">QuillBot</div>
+                <div class="tool-domain">quillbot.com</div>
+            </a><a class="tool-card" href="https://rytr.me" target="_blank" rel="noopener noreferrer" data-name="rytr rytr.me">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=rytr.me&sz=64" alt="Rytr logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">R</div>
+                </div>
+                <div class="tool-name">Rytr</div>
+                <div class="tool-domain">rytr.me</div>
+            </a><a class="tool-card" href="https://www.sudowrite.com" target="_blank" rel="noopener noreferrer" data-name="sudowrite sudowrite.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=sudowrite.com&sz=64" alt="Sudowrite logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">S</div>
+                </div>
+                <div class="tool-name">Sudowrite</div>
+                <div class="tool-domain">sudowrite.com</div>
+            </a><a class="tool-card" href="https://writesonic.com" target="_blank" rel="noopener noreferrer" data-name="writesonic writesonic.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=writesonic.com&sz=64" alt="Writesonic logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">W</div>
+                </div>
+                <div class="tool-name">Writesonic</div>
+                <div class="tool-domain">writesonic.com</div>
+            </a>
+            </div>
+        </section><section id="tab-9" class="tab-panel ">
+            <div class="panel-header">
+                <h2>📅 AI Scheduling</h2>
+                <span class="count">6 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://calendly.com" target="_blank" rel="noopener noreferrer" data-name="calendly calendly.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=calendly.com&sz=64" alt="Calendly logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Calendly</div>
+                <div class="tool-domain">calendly.com</div>
+            </a><a class="tool-card" href="https://www.getclockwise.com" target="_blank" rel="noopener noreferrer" data-name="clockwise getclockwise.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=getclockwise.com&sz=64" alt="Clockwise logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Clockwise</div>
+                <div class="tool-domain">getclockwise.com</div>
+            </a><a class="tool-card" href="https://www.usemotion.com" target="_blank" rel="noopener noreferrer" data-name="motion usemotion.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=usemotion.com&sz=64" alt="Motion logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">Motion</div>
+                <div class="tool-domain">usemotion.com</div>
+            </a><a class="tool-card" href="https://reclaim.ai" target="_blank" rel="noopener noreferrer" data-name="reclaim ai reclaim.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=reclaim.ai&sz=64" alt="Reclaim AI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">R</div>
+                </div>
+                <div class="tool-name">Reclaim AI</div>
+                <div class="tool-domain">reclaim.ai</div>
+            </a><a class="tool-card" href="https://www.taskade.com" target="_blank" rel="noopener noreferrer" data-name="taskade taskade.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=taskade.com&sz=64" alt="Taskade logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">T</div>
+                </div>
+                <div class="tool-name">Taskade</div>
+                <div class="tool-domain">taskade.com</div>
+            </a><a class="tool-card" href="https://trevorai.com" target="_blank" rel="noopener noreferrer" data-name="trevor ai trevorai.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=trevorai.com&sz=64" alt="Trevor AI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">T</div>
+                </div>
+                <div class="tool-name">Trevor AI</div>
+                <div class="tool-domain">trevorai.com</div>
+            </a>
+            </div>
+        </section><section id="tab-10" class="tab-panel ">
+            <div class="panel-header">
+                <h2>🧠 AI Knowledge Management</h2>
+                <span class="count">3 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://mem.ai" target="_blank" rel="noopener noreferrer" data-name="mem mem.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=mem.ai&sz=64" alt="Mem logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">Mem</div>
+                <div class="tool-domain">mem.ai</div>
+            </a><a class="tool-card" href="https://www.notion.so" target="_blank" rel="noopener noreferrer" data-name="notion notion.so">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=notion.so&sz=64" alt="Notion logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">N</div>
+                </div>
+                <div class="tool-name">Notion</div>
+                <div class="tool-domain">notion.so</div>
+            </a><a class="tool-card" href="https://tettra.com" target="_blank" rel="noopener noreferrer" data-name="tettra tettra.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=tettra.com&sz=64" alt="Tettra logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">T</div>
+                </div>
+                <div class="tool-name">Tettra</div>
+                <div class="tool-domain">tettra.com</div>
+            </a>
+            </div>
+        </section><section id="tab-11" class="tab-panel ">
+            <div class="panel-header">
+                <h2>🎬 AI Video Generation</h2>
+                <span class="count">10 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://www.descript.com" target="_blank" rel="noopener noreferrer" data-name="descript descript.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=descript.com&sz=64" alt="Descript logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">D</div>
+                </div>
+                <div class="tool-name">Descript</div>
+                <div class="tool-domain">descript.com</div>
+            </a><a class="tool-card" href="https://haiper.ai" target="_blank" rel="noopener noreferrer" data-name="haiper haiper.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=haiper.ai&sz=64" alt="Haiper logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">H</div>
+                </div>
+                <div class="tool-name">Haiper</div>
+                <div class="tool-domain">haiper.ai</div>
+            </a><a class="tool-card" href="https://invideo.io" target="_blank" rel="noopener noreferrer" data-name="invideo invideo.io">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=invideo.io&sz=64" alt="InVideo logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">I</div>
+                </div>
+                <div class="tool-name">InVideo</div>
+                <div class="tool-domain">invideo.io</div>
+            </a><a class="tool-card" href="https://kling.ai" target="_blank" rel="noopener noreferrer" data-name="kling kling.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=kling.ai&sz=64" alt="Kling logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">K</div>
+                </div>
+                <div class="tool-name">Kling</div>
+                <div class="tool-domain">kling.ai</div>
+            </a><a class="tool-card" href="https://www.krea.ai" target="_blank" rel="noopener noreferrer" data-name="krea krea.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=krea.ai&sz=64" alt="Krea logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">K</div>
+                </div>
+                <div class="tool-name">Krea</div>
+                <div class="tool-domain">krea.ai</div>
+            </a><a class="tool-card" href="https://ltx.studio" target="_blank" rel="noopener noreferrer" data-name="ltx studio ltx.studio">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=ltx.studio&sz=64" alt="LTX Studio logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">L</div>
+                </div>
+                <div class="tool-name">LTX Studio</div>
+                <div class="tool-domain">ltx.studio</div>
+            </a><a class="tool-card" href="https://lumalabs.ai" target="_blank" rel="noopener noreferrer" data-name="luma ai lumalabs.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=lumalabs.ai&sz=64" alt="Luma AI logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">L</div>
+                </div>
+                <div class="tool-name">Luma AI</div>
+                <div class="tool-domain">lumalabs.ai</div>
+            </a><a class="tool-card" href="https://pika.art" target="_blank" rel="noopener noreferrer" data-name="pika pika.art">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=pika.art&sz=64" alt="Pika logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">P</div>
+                </div>
+                <div class="tool-name">Pika</div>
+                <div class="tool-domain">pika.art</div>
+            </a><a class="tool-card" href="https://runwayml.com" target="_blank" rel="noopener noreferrer" data-name="runway runwayml.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=runwayml.com&sz=64" alt="Runway logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">R</div>
+                </div>
+                <div class="tool-name">Runway</div>
+                <div class="tool-domain">runwayml.com</div>
+            </a><a class="tool-card" href="https://openai.com/sora" target="_blank" rel="noopener noreferrer" data-name="sora openai.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=openai.com&sz=64" alt="Sora logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">S</div>
+                </div>
+                <div class="tool-name">Sora</div>
+                <div class="tool-domain">openai.com</div>
+            </a>
+            </div>
+        </section><section id="tab-12" class="tab-panel ">
+            <div class="panel-header">
+                <h2>🧩 AI Graphic Design</h2>
+                <span class="count">6 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://www.autodraw.com" target="_blank" rel="noopener noreferrer" data-name="autodraw autodraw.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=autodraw.com&sz=64" alt="AutoDraw logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">A</div>
+                </div>
+                <div class="tool-name">AutoDraw</div>
+                <div class="tool-domain">autodraw.com</div>
+            </a><a class="tool-card" href="https://www.canva.com" target="_blank" rel="noopener noreferrer" data-name="canva canva.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=canva.com&sz=64" alt="Canva logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">C</div>
+                </div>
+                <div class="tool-name">Canva</div>
+                <div class="tool-domain">canva.com</div>
+            </a><a class="tool-card" href="https://www.design.com" target="_blank" rel="noopener noreferrer" data-name="design.com design.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=design.com&sz=64" alt="Design.com logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">D</div>
+                </div>
+                <div class="tool-name">Design.com</div>
+                <div class="tool-domain">design.com</div>
+            </a><a class="tool-card" href="https://www.framer.com" target="_blank" rel="noopener noreferrer" data-name="framer framer.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=framer.com&sz=64" alt="Framer logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">Framer</div>
+                <div class="tool-domain">framer.com</div>
+            </a><a class="tool-card" href="https://designer.microsoft.com" target="_blank" rel="noopener noreferrer" data-name="microsoft designer designer.microsoft.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=designer.microsoft.com&sz=64" alt="Microsoft Designer logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">M</div>
+                </div>
+                <div class="tool-name">Microsoft Designer</div>
+                <div class="tool-domain">designer.microsoft.com</div>
+            </a><a class="tool-card" href="https://uizard.io" target="_blank" rel="noopener noreferrer" data-name="uizard uizard.io">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=uizard.io&sz=64" alt="Uizard logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">U</div>
+                </div>
+                <div class="tool-name">Uizard</div>
+                <div class="tool-domain">uizard.io</div>
+            </a>
+            </div>
+        </section><section id="tab-13" class="tab-panel ">
+            <div class="panel-header">
+                <h2>📈 AI Data Visualization</h2>
+                <span class="count">5 tools</span>
+            </div>
+            <div class="tools-grid">
+                <a class="tool-card" href="https://deckpilot.ai" target="_blank" rel="noopener noreferrer" data-name="deckpilot deckpilot.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=deckpilot.ai&sz=64" alt="Deckpilot logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">D</div>
+                </div>
+                <div class="tool-name">Deckpilot</div>
+                <div class="tool-domain">deckpilot.ai</div>
+            </a><a class="tool-card" href="https://flourish.studio" target="_blank" rel="noopener noreferrer" data-name="flourish flourish.studio">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=flourish.studio&sz=64" alt="Flourish logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">F</div>
+                </div>
+                <div class="tool-name">Flourish</div>
+                <div class="tool-domain">flourish.studio</div>
+            </a><a class="tool-card" href="https://julius.ai" target="_blank" rel="noopener noreferrer" data-name="julius julius.ai">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=julius.ai&sz=64" alt="Julius logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">J</div>
+                </div>
+                <div class="tool-name">Julius</div>
+                <div class="tool-domain">julius.ai</div>
+            </a><a class="tool-card" href="https://www.visme.co" target="_blank" rel="noopener noreferrer" data-name="visme visme.co">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=visme.co&sz=64" alt="Visme logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">V</div>
+                </div>
+                <div class="tool-name">Visme</div>
+                <div class="tool-domain">visme.co</div>
+            </a><a class="tool-card" href="https://zingdata.com" target="_blank" rel="noopener noreferrer" data-name="zing data zingdata.com">
+                <div class="tool-top">
+                    <img class="tool-logo" src="https://www.google.com/s2/favicons?domain=zingdata.com&sz=64" alt="Zing Data logo" loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="tool-logo-fallback" style="display:none;">Z</div>
+                </div>
+                <div class="tool-name">Zing Data</div>
+                <div class="tool-domain">zingdata.com</div>
+            </a>
+            </div>
+        </section>
+        <div id="emptyState" class="empty-state">لا توجد نتائج مطابقة داخل هذا التبويب. جرّب كلمة أخرى أو افتح تبويبًا مختلفًا.</div>
+      </main>
+    </div>
+
+    <div class="footer-note">Built for TAMIMI — Organized, searchable, and shareable.</div>
+  </div>
+
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    const searchInput = document.getElementById('searchInput');
+    const emptyState = document.getElementById('emptyState');
+
+    function activateTab(id) {
+      tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === id));
+      panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+      filterCards();
+    }
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+    });
+
+    function getActivePanel() {
+      return document.querySelector('.tab-panel.active');
+    }
+
+    function filterCards() {
+      const q = searchInput.value.trim().toLowerCase();
+      const active = getActivePanel();
+      if (!active) return;
+      const cards = active.querySelectorAll('.tool-card');
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const hay = (card.dataset.name || '') + ' ' + card.href.toLowerCase();
+        const show = !q || hay.includes(q);
+        card.style.display = show ? 'block' : 'none';
+        if (show) visibleCount++;
+      });
+      emptyState.style.display = visibleCount ? 'none' : 'block';
+    }
+
+    searchInput.addEventListener('input', filterCards);
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      searchInput.value = '';
+      activateTab('tab-0');
+    });
+
+    document.getElementById('openVisible').addEventListener('click', () => {
+      const active = getActivePanel();
+      const visibleLinks = [...active.querySelectorAll('.tool-card')]
+        .filter(el => el.style.display !== 'none')
+        .slice(0, 12);
+      visibleLinks.forEach((link, idx) => {
+        setTimeout(() => window.open(link.href, '_blank'), idx * 120);
+      });
+    });
+  </script>
+</body>
+</html>
